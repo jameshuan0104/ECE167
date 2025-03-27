@@ -1,0 +1,72 @@
+% Step 1: Collect Accelerometer Data
+clear;
+clear clc;
+close all;
+
+% filenameA = 'BatchMisalignment/AccelrerometerPointCloud.csv';
+% dataA = readtable(filenameA, 'PreserveVariableNames', true);
+% 
+% filenameB = 'BatchMisalignment/magnetometerPointCloud.csv';
+% dataB = readtable(filenameB, 'PreserveVariableNames', true);
+% 
+% ARaw = fillmissing(dataA{:,5:7}, 'linear'); 
+% 
+% timeA = (1:length(ARaw))';
+% 
+% BRaw = fillmissing(dataB{:,5:7}, 'linear'); 
+% 
+% timeB = (1:length(BRaw))';
+
+
+% % Define filenames
+% file1 = 'AccelMagTumble.csv';
+% file2 = 'AccelMagTumble2Min.csv';
+% 
+% % Read both CSV files into tables
+% data1 = readtable(file1, 'PreserveVariableNames', true);
+% data2 = readtable(file2, 'PreserveVariableNames', true);
+% 
+% % Combine the two tables (vertically stack rows)
+% combinedData = [data1; data2];  % or combinedData = vertcat(data1, data2);
+% 
+% writetable(combinedData, 'AccelMagTumble3min.csv');
+% 
+
+%read from file
+filename = 'AccelMagTumble3Min.csv';  
+data = readtable(filename, 'PreserveVariableNames', true);
+
+% Remove the last row
+data(end, :) = [];  %because of way teleplot converts to csv
+
+
+ARaw = [data.Accel_x, data.Accel_y, data.Accel_z];
+
+BRaw = [data.Mag_x, data.Mag_y, data.Mag_z];
+
+
+% maxRows = 10000;
+% ARaw = ARaw(1:min(end, maxRows), :);
+% BRaw = BRaw(1:min(end, maxRows), :);
+
+norm_ARaw = vecnorm(ARaw,2,2);
+norm_BRaw = vecnorm(BRaw,2,2);
+
+ANorm = ARaw ./ norm_ARaw;  
+BNorm = BRaw ./ norm_BRaw;
+
+inertialAccel = [0;0;1];
+inertialMag = [23223; 5192; 41237] / 47,332);
+
+rmishat = eye(3);
+
+
+
+misAlignmentMatrix = AlignPrimarySecondary(ANorm',BNorm',inertialAccel,inertialMag);
+
+
+[z,y,x] = dcm2angle(misAlignmentMatrix);
+
+disp(rad2deg(x));
+disp(rad2deg(y));
+disp(rad2deg(z));
