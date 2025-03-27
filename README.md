@@ -1,4 +1,4 @@
-hhuan143 contains various sensor setup code for components:
+inside hhuan143 folder contains various sensor setup code for components:
 
 Lab1 - flex and piezo sensor to play differnt tones via audio amplifier and speaker
 
